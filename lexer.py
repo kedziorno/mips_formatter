@@ -2,60 +2,84 @@ import re
 from typing import List, Tuple, Dict
 from collections import defaultdict
 
-# SPIM instruction set obtained from 
-# https://cgi.cse.unsw.edu.au/~cs1521/23T2/resources/mips-guide.html#:~:text=back%20to%20top-,Instructions,-The%20mipsy%20emulator
+# PicoBlaze instruction set obtained from 
+# https://www1.hs-bremerhaven.de/kmueller/VHDL/Instr_summ_PicoBlaze.pdf
 instructions = '|'.join([
-    'add', 'addi', 'addu', 'addiu', 'sub', 'subu', 'mul', 'mult', 'multu', 
-    'madd', 'maddu', 'msub', 'msubu', 'clo', 'clz', 'seb', 'seh', 'slt', 
-    'sltu', 'slti', 'sltiu', 'and', 'andi', 'or', 'ori', 'nor', 'xor', 'xori', 
-    'rotr', 'rotrv', 'sll', 'sllv', 'sra', 'srav', 'srl', 'srlv', 'lui', 'lb', 
-    'lbu', 'lh', 'lhu', 'lw', 'sb', 'sh', 'sw', 'mfhi', 'mflo', 'mthi', 'mtlo', 
-    'movz', 'move', 'movn', 'beq', 'bne', 'bgez', 'bgtz', 'bltz', 'blez', 'j', 'jal', 
-    'jr', 'jalr', 'syscall', 'break', 'teq', 'teqi', 'tne', 'tnei', 'tge', 
-    'tgeu', 'tgei', 'tgeiu', 'tlt', 'tltu', 'tlti', 'tltiu', 'div', 'divu', 
-    'rem', 'remu', 'seq', 'sne', 'sle', 'sleu', 'sgt', 'sgtu', 'sge', 'sgeu', 
-    'abs', 'neg', 'negu', 'not', 'rol', 'ror', 'li', 'la', 'b', 'beqz', 'bneq', 
-    'bge', 'bgeu', 'bgt', 'bgtu', 'blt', 'bltu', 'ble', 'bleu', 'tgt', 'tgtu', 
-    'tgti', 'tgtiu', 'tle', 'tleu', 'tlei', 'tleiu', 'nop', 'bnez'
+    'load', 
+    'jump',
+    'rl',                 'll',
+    'call',               'return',
+    'compare',            'test',
+    'fetch',              'store',
+    'input',              'output',
+    'disable interrupt',  'enable interrupt',
+    'returni disable',    'returni enable',
+    'and',                'or',               'xor',
+    'add',                'addcy',            'sub',  'subcy',
+    'sl0',                'sla',              'slx',  'sl1',
+    'sr0',                'sra',              'srx',  'sr1'
 ])
 directives = '|'.join([
-    'align', 'ascii', 'asciiz', 'byte', 'data', 'double', 'extern', 'float',
-    'globl', 'half', 'kdata', 'ktext', 'space', 'text', 'word'
+    'constant', 'namereg'
 ])
 registers = '|'.join([
-    'zero', 'at', 'v0', 'v1', 'a0', 'a1', 'a2', 'a3', 't0', 't1', 't2', 't3', 
-    't4', 't5', 't6', 't7', 's0', 's1', 's2', 's3', 's4', 's5', 's6', 's7', 
-    't8', 't9', 'k0', 'k1', 'gp', 'sp', 'fp', 'ra'
+'[st][0-9a-fA-F]', 'A'
 ])
-token_specs = [
-    ('COMMENT', r'#.*'),
-    ('DIRECTIVE', fr'\.(?:{directives})\b'),
-    ('INSTRUCTION', fr'\b({instructions})\b'),
-    ('REGISTER', fr'\$(?:{registers})\b'),
-    ('FLOAT', r'-?(\d+\.\d+|\.\d+|\d+\.)'),
-    ('INTEGER', r'-?(\b\d+\b|0[xX][0-9a-fA-F]+)'),
-    ('CHAR', r"'(?:\\[ntr]|\\'|[^\\'])'"),
-    ('STRING', r'"[^"]*"'),
-    ('LABEL_DEFINITION', r'[a-zA-Z0-9_]+:'),
-    # 'LABEL'
-    ('COMMA', r','),
-    ('LBRACKET', r'\('),
-    ('RBRACKET', r'\)'),
-    ('WHITESPACE', r'\s+'),
-    ('UNKNOWN', r'[^\s]+')
+specs_string = [
+'LABEL_DEFINITION', # 0
+'DIRECTIVE',        # 1
+'INSTRUCTION',      # 2
+'REGISTER',         # 3
+'COMMA',            # 4
+'INTEGER',          # 5
+'CHAR',             # 6
+'COMMENT',          # 7
+'STRING',           # 8
+'FLOAT',            # 9
+'LBRACKET',         # 10
+'RBRACKET',         # 11
+'WHITESPACE',       # 12
+'UNKNOWN'           # 13
 ]
-token_regex = re.compile(
-    '|'.join('(?P<%s>%s)' % pair for pair in token_specs)
-)
-label_directive_regex = re.compile(
-    r'^(?P<LABEL_DEFINITION>[a-zA-Z0-9_]+:)\s*(?P<DIRECTIVE>\.(?:' + directives + r')).*$'
-)
-# comment_and_whitespace_regex = re.compile(r'^\s*(?P<COMMENT>#.*)$')
-comment_regex = re.compile(r'^(?P<COMMENT>#.*)$')
-code_label_definition_regex = re.compile(r'(?P<LABEL_DEFINITION>[a-zA-Z0-9_]+:)')
-instruction_and_comment_regex = re.compile(
-    r'(?P<INSTRUCTION>\b(?:' + instructions + r')\b)(?P<COMMENT>#.*)'
-)
+
+token_specs = {}
+token_specs[specs_string[0]] = (specs_string[0], r'([a-zA-Z0-9_ ]+:)[\s]{0,}\s*(;.*){0,}');
+token_specs[specs_string[1]] = (specs_string[1], fr'[\s]*(?:{directives})\b');
+token_specs[specs_string[2]] = (specs_string[2], fr'[\s]*({instructions})\b');
+token_specs[specs_string[3]] = (specs_string[3], fr'[\s]*(?:{registers})\b');
+token_specs[specs_string[4]] = (specs_string[4], r'[\s]*,');
+token_specs[specs_string[5]] = (specs_string[5], r'[\s]*([0-9a-fA-F]){2}');
+token_specs[specs_string[6]] = (specs_string[6], r"'(?:\\[ntr]|\\'|[^\\'])'");
+token_specs[specs_string[7]] = (specs_string[7], r'[\s]{0,};.*');
+token_specs[specs_string[8]] = (specs_string[8], r'[^"]*');
+token_specs[specs_string[9]] = (specs_string[9], r'-?(\d+\.\d+|\.\d+|\d+\.)');
+token_specs[specs_string[10]] = (specs_string[10], r'\(');
+token_specs[specs_string[11]] = (specs_string[11], r'\)');
+token_specs[specs_string[12]] = (specs_string[12], r'\s+');
+token_specs[specs_string[13]] = (specs_string[13], r'[^\s]+');
+
+token_regex_str = "|"
+for pair in enumerate(specs_string):
+  sub_pair = token_specs[pair[1]]
+  token_regex_str = token_regex_str + "".join('(?P<%s>%s)' % (sub_pair[0], sub_pair[1]))
+  token_regex_str = token_regex_str + "|"
+token_regex = re.compile(token_regex_str, flags=re.IGNORECASE)
+
+re_str = r'^(?P<DIRECTIVE>'+token_specs['DIRECTIVE'][1]+'\s+(?P<STRING>'+token_specs['STRING'][1]+')\s*(?P<COMMENT>'+token_specs['COMMENT'][1]+'))$'
+print (re_str)
+label_directive_regex = re.compile(re_str)
+
+re_str = r'^(?P<COMMENT>' + token_specs['COMMENT'][1] + r')$'
+print (re_str)
+comment_regex = re.compile(re_str)
+
+re_str = r'^(?P<LABEL_DEFINITION>' + token_specs['LABEL_DEFINITION'][1] + ')$'
+print (re_str)
+code_label_definition_regex = re.compile(re_str)
+
+re_str = r'(?P<INSTRUCTION>\b(?:' + instructions + r')\b)(?P<COMMENT>' + token_specs['COMMENT'][1] + r')'
+print (re_str)
+instruction_and_comment_regex = re.compile(re_str)
 
 def lex(text: str) -> List[List[Tuple[str, str]]]:
     tokens = initial_lex(text)

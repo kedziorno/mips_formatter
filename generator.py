@@ -65,7 +65,7 @@ def align_data_comments(tokens: List[List[Tuple[str, str]]]) -> List[List[Tuple[
     new_tokens = tokens
     longest_len = 0
     for subtokens in new_tokens:
-        if not lexer.label_directive_regex.match(tokens_to_line(subtokens)):
+        if not lexer.label_directive_regex.match(tokens_to_line(subtokens), re.MULTILINE):
             continue
         longest_len = max(longest_len, sum(len(token_value) for _, token_value in subtokens[:-1]))
 
@@ -74,7 +74,7 @@ def align_data_comments(tokens: List[List[Tuple[str, str]]]) -> List[List[Tuple[
         multiplier += 1
 
     for i, subtokens in enumerate(tokens):
-        if not lexer.label_directive_regex.match(tokens_to_line(subtokens)):
+        if not lexer.label_directive_regex.match(tokens_to_line(subtokens), re.MULTILINE):
             continue
         new_tokens[i].insert(len(subtokens) - 1, ('WHITESPACE', ' ' * (tab_len * multiplier - sum(len(token_value) for _, token_value in subtokens[:-1]))))
     return new_tokens
