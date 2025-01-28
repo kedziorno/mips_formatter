@@ -121,14 +121,14 @@ def align_right_side_comments(tokens: List[List[Tuple[str, str]]]) -> List[List[
     new_tokens = tokens
     longest_len = 0
     for subtokens in tokens:
-        if (len(subtokens) == 15 or len(subtokens) == 10 or len(subtokens) == 8):
-            print (f"align_inline_comments - {len(subtokens)} - {subtokens}")    
+        #if (len(subtokens) == 15 or len(subtokens) == 10 or len(subtokens) == 8):
             #print (subtokens[2][0])
-            #print (subtokens[len(subtokens)-2][0])
-            if not (len(subtokens) > 1 and subtokens[2][0] == 'INSTRUCTION' and subtokens[len(subtokens)-2][0] == 'COMMENT'):
-                continue
-            line_len = 1 + sum(len(token_value) for _, token_value in subtokens[:-1])
-            longest_len = max(longest_len, line_len)
+      if not (len(subtokens) > 3 and subtokens[2][0] == 'INSTRUCTION' and subtokens[len(subtokens)-2][0] == 'COMMENT'):
+          continue
+      print ("eeeeee")
+      print (subtokens[:-2])
+      line_len = sum(len(token_value) for _, token_value in subtokens[:len(subtokens)-2])
+      longest_len = max(longest_len, line_len)
 
     multiplier = 0
     while longest_len > tab_len * multiplier:
@@ -137,21 +137,32 @@ def align_right_side_comments(tokens: List[List[Tuple[str, str]]]) -> List[List[
     for i, subtokens in enumerate(tokens):
         if not (len(subtokens) > 1 and subtokens[2][0] == 'INSTRUCTION' and subtokens[len(subtokens) - 2][0] == 'COMMENT'):
             continue
-        #print (subtokens[2][0])
-        #print (subtokens[len(subtokens)-2][0])
-        line_len = sum(len(token_value) for _, token_value in subtokens[:-1])
+        print ("wwwwww")
+        print (subtokens)
+        #print ("wwwww "+subtokens[:-1])
+        line_len = sum(len(token_value) for _, token_value in subtokens[:len(subtokens)-2])
         #print (subtokens[:-1])
         #print (('WHITESPACE', ' ' * (multiplier * tab_len - line_len)))
-        new_tokens[i].insert(len(subtokens[:-2]), ('WHITESPACE', ' ' * (multiplier * tab_len - line_len)))
-        #print (f"align_inline_comments1 - {len(new_tokens[i])} - {new_tokens[i]}")    
+        print (f"align_inline_comments - {i} - {len(subtokens)} - {subtokens}")    
+        #new_tokens[i].pop(len(subtokens[:-3]))
+        new_tokens[i].insert(len(subtokens[:-2]), ('WHITESPACE', '@' * (multiplier * tab_len - line_len)))
+        print (f"align_inline_comments1 - {i} - {len(new_tokens[i])} - {new_tokens[i]}")    
         
     return new_tokens
 
 def add_vertical_whitespace(tokens: List[List[Tuple[str, str]]]) -> List[List[Tuple[str, str]]]:
     new_tokens = []
     longest_len = 0
+    temp_tokens = tokens
+    
+    for i, subtokens in enumerate(temp_tokens):
+        if (len(temp_tokens[i]) == 1):
+          temp_tokens[i].pop(0)
+          temp_tokens[i].insert(0,('WHITESPACE', ''))
+    temp = temp_tokens
+    
     for i, subtokens in enumerate(tokens):
-        print (f"qwert - {len(subtokens)} - {subtokens}")
+        print (f"qwert - {i} - {len(subtokens)} - {subtokens}")
         if (i > 0 and 
             len(subtokens) > 1 and
             (subtokens[1][0] == 'COMMENT' or subtokens[0][0] == 'COMMENT') and 
@@ -159,7 +170,7 @@ def add_vertical_whitespace(tokens: List[List[Tuple[str, str]]]) -> List[List[Tu
             tokens[i - 1][0][0] == 'INSTRUCTION'):
             new_tokens.append([('WHITESPACE', '')])
         new_tokens.append(subtokens)
-        print (f"add_vertical_whitespace111 - {i} - {len(new_tokens[i])} - {new_tokens[i]}")    
+        #print (f"add_vertical_whitespace111 - {i} - {len(new_tokens[i])} - {new_tokens[i]}")    
 
         for subtokens in new_tokens:
             if len(subtokens) < 2 or not (subtokens[2][0] == 'INSTRUCTION'):
@@ -175,22 +186,22 @@ def add_vertical_whitespace(tokens: List[List[Tuple[str, str]]]) -> List[List[Tu
         if (i > 0 and 
             len(subtokens) > 1 and
             len(tokens[i - 1]) > 1 and
-            ((tokens[i-1][1][0] == 'LABEL_DEFINITION'))):
+            ((tokens[i-1][1][0] == 'LABEL_DEFINITION' or tokens[i-1][1][0] == 'WHITESPACE' or tokens[i-1][1][0] == 'COMMENT'))):
             #print ("subtoken333 " + tokens[i-1][1][1])
     
               new_tokens[i].pop(3)
               new_tokens[i].insert(3, ('WHITESPACE', '|' * ((multiplier) * tab_len - len(tokens[i][2][1]))))
-              print (f"add_vertical_whitespace444 - {len(new_tokens[i])} - {new_tokens[i]}")    
+              #print (f"add_vertical_whitespace444 - {len(new_tokens[i])} - {new_tokens[i]}")    
                 
         elif (i > 0 and 
             len(subtokens) > 1 and
             len(tokens[i - 2]) > 1 and len(tokens[i - 1]) > 1 and
-            ((tokens[i][2][0] == 'INSTRUCTION'))):
-            print ("subtoken " + tokens[i][2][1])
+            ((tokens[i-1][2][0] == 'INSTRUCTION') and (tokens[i-1][2][0] == 'WHITESPACE'))):
+            #print ("subtoken " + tokens[i][2][1])
     
             new_tokens[i].pop(3)
             new_tokens[i].insert(3, ('WHITESPACE', '-' * ((multiplier) * tab_len - len(tokens[i][2][1]))))
-            print (f"add_vertical_whitespace222 - {len(new_tokens[i])} - {new_tokens[i]}")    
+            #print (f"add_vertical_whitespace222 - {len(new_tokens[i])} - {new_tokens[i]}")    
 
 
         if len(subtokens) > 0 and is_code_label_definition(subtokens):
@@ -202,7 +213,7 @@ def add_vertical_whitespace(tokens: List[List[Tuple[str, str]]]) -> List[List[Tu
                     is_code_label_definition(tokens[j]))):
                 j -= 1
             new_tokens.insert(len(new_tokens) - (i - j), [('WHITESPACE', '+')])
-        print (f"add_vertical_whitespace333 - {len(new_tokens[i])} - {new_tokens[i]}")    
+        #print (f"add_vertical_whitespace333 - {len(new_tokens[i])} - {new_tokens[i]}")    
     return new_tokens
 
 def is_code_label_definition(tokens: List[List[Tuple[str, str]]]) -> bool:
@@ -214,7 +225,10 @@ def is_code_label_definition(tokens: List[List[Tuple[str, str]]]) -> bool:
 def tokens_to_text(tokens: List[List[Tuple[str, str]]]) -> List[str]:
     lines = []
     for subtokens in tokens:
+        if subtokens == None:
+          continue
         line = ''
+        #print (subtokens)
         for _, token_value in subtokens:
             line += token_value
         lines.append(line)
