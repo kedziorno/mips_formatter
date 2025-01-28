@@ -47,7 +47,7 @@ def align_data_code(tokens: List[List[Tuple[str, str]]]) -> List[List[Tuple[str,
     new_tokens = tokens
     longest_len = 0
     for subtokens in new_tokens:
-        if len(subtokens) < 4 or not (subtokens[1][0] == 'LABEL_DEFINITION'):
+        if len(subtokens) < 5 or not (subtokens[1][0] == 'LABEL_DEFINITION'):
             continue
         longest_len = max(longest_len, len(subtokens[1][1]))
 
@@ -56,13 +56,13 @@ def align_data_code(tokens: List[List[Tuple[str, str]]]) -> List[List[Tuple[str,
         multiplier += 1
 
     for i, subtokens in enumerate(tokens):
-        if len(subtokens) < 4 or not (subtokens[1][0] == 'LABEL_DEFINITION'):
+        if len(subtokens) < 5 or not (subtokens[1][0] == 'LABEL_DEFINITION'):
             continue
         #print (f"subtokens - {len(subtokens)} - {subtokens}")    
         #new_tokens[i].insert(0, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
         #new_tokens[i].insert(1, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
         new_tokens[i].pop(2)
-        new_tokens[i].insert(2, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
+        #new_tokens[i].insert(2, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
         #new_tokens[i].insert(3, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
         #new_tokens[i].insert(4, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
         #new_tokens[i].insert(5, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
@@ -70,7 +70,7 @@ def align_data_code(tokens: List[List[Tuple[str, str]]]) -> List[List[Tuple[str,
         #new_tokens[i].insert(7, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
         #new_tokens[i].insert(8, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
         #new_tokens[i].insert(9, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
-        #new_tokens[i].insert(10, ('WHITESPACE', ' ' * ((multiplier + 1) * tab_len - len(subtokens[1][1]) - len(subtokens[2][1]) - len(subtokens[3][1]))))
+        new_tokens[i].insert(2, ('WHITESPACE', ' ' * ((multiplier + 1) * tab_len - len(subtokens[1][1]) - len(subtokens[4][1]))))
         print (f"newtokens - {len(new_tokens)} - {new_tokens[i]}")
         
     return new_tokens
