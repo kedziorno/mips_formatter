@@ -175,7 +175,7 @@ def add_vertical_whitespace(tokens: List[List[Tuple[str, str]]]) -> List[List[Tu
         if (i > 0 and 
             len(subtokens) > 1 and
             len(tokens[i - 1]) > 1 and
-            tokens[i - 1][2][0] == 'INSTRUCTION'):
+            ((tokens[i - 1][2][0] == 'INSTRUCTION') or (tokens[i - 1][2][0] == 'LABEL_DEFINITION'))):
             print ("subtoken " + tokens[i][2][1])
     
             #new_tokens[i].pop(2)
