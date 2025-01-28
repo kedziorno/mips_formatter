@@ -171,25 +171,25 @@ def add_vertical_whitespace(tokens: List[List[Tuple[str, str]]]) -> List[List[Tu
         while longest_len > tab_len * multiplier:
             multiplier += 1
 
-
+        
         if (i > 0 and 
             len(subtokens) > 1 and
             len(tokens[i - 1]) > 1 and
             ((tokens[i-1][1][0] == 'LABEL_DEFINITION'))):
-            print ("subtoken333 " + tokens[i-1][2][1])
+            #print ("subtoken333 " + tokens[i-1][1][1])
     
-            #new_tokens[i].pop(2)
-            new_tokens[i].insert(3, ('WHITESPACE', '|' * ((multiplier+1) * tab_len - len(tokens[i][2][1]))))
-            print (f"add_vertical_whitespace444 - {len(new_tokens[i])} - {new_tokens[i]}")    
-        
+              new_tokens[i].pop(3)
+              new_tokens[i].insert(3, ('WHITESPACE', '|' * ((multiplier) * tab_len - len(tokens[i][2][1]))))
+              print (f"add_vertical_whitespace444 - {len(new_tokens[i])} - {new_tokens[i]}")    
+                
         if (i > 0 and 
             len(subtokens) > 1 and
             len(tokens[i - 2]) > 1 and len(tokens[i - 1]) > 1 and
-            ((tokens[i - 1][2][0] == 'INSTRUCTION') or (tokens[i - 2][1][0] == 'LABEL_DEFINITION'))):
+            ((tokens[i][2][0] == 'INSTRUCTION') or (tokens[i - 1][1][0] == 'LABEL_DEFINITION'))):
             print ("subtoken " + tokens[i][2][1])
     
             #new_tokens[i].pop(2)
-            new_tokens[i].insert(3, ('WHITESPACE', '-' * ((multiplier+1) * tab_len - len(tokens[i][2][1]))))
+            new_tokens[i].insert(3, ('WHITESPACE', '-' * ((multiplier) * tab_len - len(tokens[i][2][1]))))
             print (f"add_vertical_whitespace222 - {len(new_tokens[i])} - {new_tokens[i]}")    
 
 
