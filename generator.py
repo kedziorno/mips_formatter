@@ -162,9 +162,9 @@ def add_vertical_whitespace(tokens: List[List[Tuple[str, str]]]) -> List[List[Tu
         print (f"add_vertical_whitespace1 - {len(new_tokens[i])} - {new_tokens[i]}")    
 
         for subtokens in new_tokens:
-            if len(subtokens) < 5 or not (subtokens[2][0] == 'INSTRUCTION'):
+            if len(subtokens) < 2 or not (subtokens[2][0] == 'INSTRUCTION'):
                 continue
-            longest_len = max(longest_len, len(subtokens[1][1]))
+            longest_len = max(longest_len, len(subtokens[2][1]))
 
         multiplier = 0
         while longest_len > tab_len * multiplier:
@@ -178,7 +178,7 @@ def add_vertical_whitespace(tokens: List[List[Tuple[str, str]]]) -> List[List[Tu
             #new_tokens[i].pop(2)
             print (f"add_vertical_whitespace1ooooooo - {len(new_tokens[i])} - {new_tokens[i]}")    
 
-            new_tokens[i].insert(3, ('WHITESPACE', ' ' * (longest_len)))
+            new_tokens[i].insert(3, ('WHITESPACE', '-' * (longest_len)))
 
 
         if len(subtokens) > 0 and is_code_label_definition(subtokens):
