@@ -159,11 +159,12 @@ def add_vertical_whitespace(tokens: List[List[Tuple[str, str]]]) -> List[List[Tu
             tokens[i - 1][0][0] == 'INSTRUCTION'):
             new_tokens.append([('WHITESPACE', '')])
         new_tokens.append(subtokens)
-        print (f"add_vertical_whitespace1 - {len(new_tokens[i])} - {new_tokens[i]}")    
+        print (f"add_vertical_whitespace111 - {len(new_tokens[i])} - {new_tokens[i]}")    
 
         for subtokens in new_tokens:
             if len(subtokens) < 2 or not (subtokens[2][0] == 'INSTRUCTION'):
                 continue
+            print ("ll "+subtokens[2][1])
             longest_len = max(longest_len, len(subtokens[2][1]))
 
         multiplier = 0
@@ -175,23 +176,23 @@ def add_vertical_whitespace(tokens: List[List[Tuple[str, str]]]) -> List[List[Tu
             len(subtokens) > 1 and
             len(tokens[i - 1]) > 1 and
             tokens[i - 1][2][0] == 'INSTRUCTION'):
+            print ("subtoken " + tokens[i][2][1])
+    
             #new_tokens[i].pop(2)
-            print (f"add_vertical_whitespace1ooooooo - {len(new_tokens[i])} - {new_tokens[i]}")    
-
-            new_tokens[i].insert(3, ('WHITESPACE', '-' * (longest_len)))
+            new_tokens[i].insert(3, ('WHITESPACE', '-' * ((multiplier+1) * tab_len - len(tokens[i][2][1]))))
+            print (f"add_vertical_whitespace222 - {len(new_tokens[i])} - {new_tokens[i]}")    
 
 
         if len(subtokens) > 0 and is_code_label_definition(subtokens):
             j = i
-            print ("zaq " + tokens[j][0][0])
             while (j > -1 and
                    len(tokens[j]) > 0 and
-                   (tokens[j][0][0] == 'COMMENT' or
-                    tokens[j][0][0] == 'DIRECTIVE' or
+                   (tokens[j][1][0] == 'COMMENT' or
+                    tokens[j][1][0] == 'DIRECTIVE' or
                     is_code_label_definition(tokens[j]))):
                 j -= 1
-            new_tokens.insert(len(new_tokens) - (i - j), [('WHITESPACE', '')])
-        print (f"add_vertical_whitespace2 - {len(new_tokens[i])} - {new_tokens[i]}")    
+            new_tokens.insert(len(new_tokens) - (i - j), [('WHITESPACE', '+')])
+        print (f"add_vertical_whitespace333 - {len(new_tokens[i])} - {new_tokens[i]}")    
     return new_tokens
 
 def is_code_label_definition(tokens: List[List[Tuple[str, str]]]) -> bool:
