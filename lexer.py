@@ -43,7 +43,7 @@ specs_string = [
 ]
 
 token_specs = {}
-token_specs[specs_string[0]] = (specs_string[0], r'([a-zA-Z0-9_ ]+:)[\s]{0,}\s*(;.*){0,}');
+token_specs[specs_string[0]] = (specs_string[0], r'([a-zA-Z0-9_ ]+:)[\s]{0,}\s*');
 token_specs[specs_string[1]] = (specs_string[1], fr'[\s]*(?:{directives})\b');
 token_specs[specs_string[2]] = (specs_string[2], fr'[\s]*({instructions})\b');
 token_specs[specs_string[3]] = (specs_string[3], fr'[\s]*(?:{registers})\b');
@@ -51,7 +51,7 @@ token_specs[specs_string[4]] = (specs_string[4], r'[\s]*,');
 token_specs[specs_string[5]] = (specs_string[5], r'[\s]*([0-9a-fA-F]){2}');
 token_specs[specs_string[6]] = (specs_string[6], r"'(?:\\[ntr]|\\'|[^\\'])'");
 token_specs[specs_string[7]] = (specs_string[7], r'[\s]{0,};.*');
-token_specs[specs_string[8]] = (specs_string[8], r'[^"]*');
+token_specs[specs_string[8]] = (specs_string[8], r'[^";]*');
 token_specs[specs_string[9]] = (specs_string[9], r'-?(\d+\.\d+|\.\d+|\d+\.)');
 token_specs[specs_string[10]] = (specs_string[10], r'\(');
 token_specs[specs_string[11]] = (specs_string[11], r'\)');
@@ -69,7 +69,7 @@ re_str = r'^(?P<DIRECTIVE>'+token_specs['DIRECTIVE'][1]+'\s+(?P<STRING>'+token_s
 print (re_str)
 label_directive_regex = re.compile(re_str)
 
-re_str = r'^(?P<COMMENT>' + token_specs['COMMENT'][1] + r')$'
+re_str = r'(?P<COMMENT>' + token_specs['COMMENT'][1] + r')'
 print (re_str)
 comment_regex = re.compile(re_str)
 
@@ -77,7 +77,7 @@ re_str = r'^(?P<LABEL_DEFINITION>' + token_specs['LABEL_DEFINITION'][1] + ')$'
 print (re_str)
 code_label_definition_regex = re.compile(re_str)
 
-re_str = r'(?P<INSTRUCTION>\b(?:' + instructions + r')\b)(?P<COMMENT>' + token_specs['COMMENT'][1] + r')'
+re_str = r'(?P<INSTRUCTION>' + instructions + r')(?P<COMMENT>' + token_specs['COMMENT'][1] + r')'
 print (re_str)
 instruction_and_comment_regex = re.compile(re_str)
 

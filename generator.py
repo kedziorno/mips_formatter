@@ -4,7 +4,7 @@ from collections import defaultdict
 
 import lexer
 
-tab_len = 8
+tab_len = 2
 
 def generate(tokens: List[List[Tuple[str, str]]]) -> List[str]:
     # For now, the order of horizontal -> vertical is important.
@@ -26,6 +26,7 @@ def add_horizontal_whitespace(tokens: List[List[Tuple[str, str]]]) -> List[List[
             if prev_token_type == 'INSTRUCTION':
                 new_subtokens.append(('WHITESPACE', ' ' * (tab_len - len(prev_token_value))))
             if prev_token_type == 'COMMA' or prev_token_type == 'LABEL_DEFINITION' and not token_type == 'DIRECTIVE' or prev_token_type == 'DIRECTIVE' and not prev_prev_token_type == 'LABEL_DEFINITION' or prev_token_type == 'INSTRUCTION':
+                #print ("bbb")
                 new_subtokens.append(('WHITESPACE', ' '))
 
             new_subtokens.append((token_type, token_value))
@@ -46,19 +47,32 @@ def align_data_code(tokens: List[List[Tuple[str, str]]]) -> List[List[Tuple[str,
     new_tokens = tokens
     longest_len = 0
     for subtokens in new_tokens:
-        if len(subtokens) < 2 or not (subtokens[0][0] == 'LABEL_DEFINITION' and subtokens[1][0] == 'DIRECTIVE'):
+        if len(subtokens) < 4 or not (subtokens[1][0] == 'LABEL_DEFINITION'):
             continue
-        longest_len = max(longest_len, len(subtokens[0][1]))
+        longest_len = max(longest_len, len(subtokens[1][1]))
 
     multiplier = 0
     while longest_len > tab_len * multiplier:
         multiplier += 1
 
     for i, subtokens in enumerate(tokens):
-        if len(subtokens) < 2 or not (subtokens[0][0] == 'LABEL_DEFINITION' and subtokens[1][0] == 'DIRECTIVE'):
+        if len(subtokens) < 4 or not (subtokens[1][0] == 'LABEL_DEFINITION'):
             continue
-        new_tokens[i].insert(1, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[0][1]))))
-        new_tokens[i].insert(3, ('WHITESPACE', ' ' * ((multiplier + 1) * tab_len - len(subtokens[0][1]) - len(subtokens[1][1]) - len(subtokens[2][1]))))
+        #print (f"subtokens - {len(subtokens)} - {subtokens}")    
+        #new_tokens[i].insert(0, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
+        #new_tokens[i].insert(1, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
+        new_tokens[i].pop(2)
+        new_tokens[i].insert(2, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
+        #new_tokens[i].insert(3, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
+        #new_tokens[i].insert(4, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
+        #new_tokens[i].insert(5, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
+        #new_tokens[i].insert(6, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
+        #new_tokens[i].insert(7, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
+        #new_tokens[i].insert(8, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
+        #new_tokens[i].insert(9, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
+        #new_tokens[i].insert(10, ('WHITESPACE', ' ' * ((multiplier + 1) * tab_len - len(subtokens[1][1]) - len(subtokens[2][1]) - len(subtokens[3][1]))))
+        print (f"newtokens - {len(new_tokens)} - {new_tokens[i]}")
+        
     return new_tokens
 
 def align_data_comments(tokens: List[List[Tuple[str, str]]]) -> List[List[Tuple[str, str]]]:
@@ -91,19 +105,27 @@ def align_right_side_comments(tokens: List[List[Tuple[str, str]]]) -> List[List[
     new_tokens = tokens
     longest_len = 0
     for subtokens in tokens:
-        if not (len(subtokens) > 1 and subtokens[1][0] == 'INSTRUCTION' and subtokens[len(subtokens) - 1][0] == 'COMMENT'):
-            continue
-        line_len = 1 + sum(len(token_value) for _, token_value in subtokens[:-1])
-        longest_len = max(longest_len, line_len)
+        if (len(subtokens) == 15 or len(subtokens) == 10 or len(subtokens) == 8):
+            #print (f"subtokens - {len(subtokens)} - {subtokens}")
+            #print (subtokens[2][0])
+            #print (subtokens[len(subtokens)-2][0])
+            if not (len(subtokens) > 1 and subtokens[2][0] == 'INSTRUCTION' and subtokens[len(subtokens)-2][0] == 'COMMENT'):
+                continue
+            line_len = 1 + sum(len(token_value) for _, token_value in subtokens[:-1])
+            longest_len = max(longest_len, line_len)
 
     multiplier = 0
     while longest_len > tab_len * multiplier:
         multiplier += 1
     
     for i, subtokens in enumerate(tokens):
-        if not (len(subtokens) > 1 and subtokens[1][0] == 'INSTRUCTION' and subtokens[len(subtokens) - 1][0] == 'COMMENT'):
+        if not (len(subtokens) > 1 and subtokens[2][0] == 'INSTRUCTION' and subtokens[len(subtokens) - 2][0] == 'COMMENT'):
             continue
+        #print (subtokens[2][0])
+        #print (subtokens[len(subtokens)-2][0])
         line_len = sum(len(token_value) for _, token_value in subtokens[:-1])
+        #print (subtokens[:-1])
+        #print (('WHITESPACE', ' ' * (multiplier * tab_len - line_len)))
         new_tokens[i].insert(len(subtokens[:-1]), ('WHITESPACE', ' ' * (multiplier * tab_len - line_len)))
     return new_tokens
 
