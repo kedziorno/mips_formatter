@@ -103,15 +103,17 @@ def align_data_comments(tokens: List[List[Tuple[str, str]]]) -> List[List[Tuple[
           #  print (f"newtokens - {len(subtokens[i][:-1])} - {subtokens[i][:-1]}")
           #print (f"ssss - {subtokens[:-1]}")
           new_tokens[i].insert(11, ('WHITESPACE', ' ' * (tab_len * multiplier - sum(len(token_value) for _, token_value in subtokens[:-1]))))
-        print (f"newtokens - {len(new_tokens[i])} - {new_tokens[i]}")
+        #print (f"newtokens - {len(new_tokens[i])} - {new_tokens[i]}")
         
     return new_tokens
 
 def align_inline_comments(tokens: List[List[Tuple[str, str]]]) -> List[List[Tuple[str, str]]]:
     new_tokens = tokens
     for i, subtokens in enumerate(tokens):
-        if not (lexer.comment_regex.match(tokens_to_line(subtokens)) and i + 1 < len(tokens) and not lexer.code_label_definition_regex.match(tokens_to_line(tokens[i + 1]))):
+        if not (lexer.comment_regex.match(tokens_to_line(subtokens)) and i + 1 < len(tokens) and not  lexer.code_label_definition_regex.match(tokens_to_line(tokens[i + 1]))):
             continue
+        print (f"subtokens - {i} {len(subtokens)} - {subtokens}")    
+        
         new_tokens[i].insert(0, ('WHITESPACE', ' ' * tab_len))
     return new_tokens
 
