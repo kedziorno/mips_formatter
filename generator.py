@@ -91,14 +91,17 @@ def align_data_comments(tokens: List[List[Tuple[str, str]]]) -> List[List[Tuple[
     for i, subtokens in enumerate(tokens):
         if not lexer.label_directive_regex.match(tokens_to_line(subtokens)):
             continue
-        if (len(new_tokens[i]) > 8 or len(new_tokens[i]) < 13):
-          print
+        if (len(new_tokens[i]) == 8):
           #new_tokens[i].pop(2)
           #new_tokens[i].insert(2, ('WHITESPACE', ' '));
           #new_tokens[i].insert(12, ('aaa', 'bbb'));
+          new_tokens[i].insert(5, ('WHITESPACE', ' ' * (tab_len * multiplier - sum(len(token_value) for _, token_value in subtokens[:-1]))))
         if (len(new_tokens[i]) == 13):
           #new_tokens[i].pop(11)
           #new_tokens[i].insert(12, ('ccc', 'ddd'));
+          #for i in subtokens[:-1]:
+          #  print (f"newtokens - {len(subtokens[i][:-1])} - {subtokens[i][:-1]}")
+          #print (f"ssss - {subtokens[:-1]}")
           new_tokens[i].insert(11, ('WHITESPACE', ' ' * (tab_len * multiplier - sum(len(token_value) for _, token_value in subtokens[:-1]))))
         print (f"newtokens - {len(new_tokens[i])} - {new_tokens[i]}")
         

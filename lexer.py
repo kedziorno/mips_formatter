@@ -48,7 +48,7 @@ token_specs[specs_string[1]] = (specs_string[1], fr'[\s]*(?:{directives})\b');
 token_specs[specs_string[2]] = (specs_string[2], fr'[\s]*({instructions})\b');
 token_specs[specs_string[3]] = (specs_string[3], fr'[\s]*(?:{registers})\b');
 token_specs[specs_string[4]] = (specs_string[4], r'[\s]*,');
-token_specs[specs_string[5]] = (specs_string[5], r'[\s]*([0-9a-fA-F]){2}');
+token_specs[specs_string[5]] = (specs_string[5], r'\s*([0-9a-fA-F]{2});');
 token_specs[specs_string[6]] = (specs_string[6], r"'(?:\\[ntr]|\\'|[^\\'])'");
 token_specs[specs_string[7]] = (specs_string[7], r'[\s]{0,};.*');
 token_specs[specs_string[8]] = (specs_string[8], r'[^";]*');
@@ -77,7 +77,7 @@ re_str = r'^(?P<LABEL_DEFINITION>' + token_specs['LABEL_DEFINITION'][1] + ')$'
 print (re_str)
 code_label_definition_regex = re.compile(re_str)
 
-re_str = r'(?P<INSTRUCTION>' + instructions + r')(?P<COMMENT>' + token_specs['COMMENT'][1] + r')'
+re_str = r'^(?P<INSTRUCTION>' + instructions + r').*(?P<COMMENT>' + token_specs['COMMENT'][1] + r')$'
 print (re_str)
 instruction_and_comment_regex = re.compile(re_str)
 
