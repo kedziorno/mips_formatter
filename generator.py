@@ -71,7 +71,7 @@ def align_data_code(tokens: List[List[Tuple[str, str]]]) -> List[List[Tuple[str,
         #new_tokens[i].insert(8, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
         #new_tokens[i].insert(9, ('WHITESPACE', ' ' * (multiplier * tab_len - len(subtokens[1][1]))))
         new_tokens[i].insert(2, ('WHITESPACE', ' ' * ((multiplier + 1) * tab_len - len(subtokens[1][1]) - len(subtokens[4][1]))))
-        print (f"newtokens - {len(new_tokens)} - {new_tokens[i]}")
+        #print (f"newtokens - {len(new_tokens)} - {new_tokens[i]}")
         
     return new_tokens
 
@@ -79,7 +79,8 @@ def align_data_comments(tokens: List[List[Tuple[str, str]]]) -> List[List[Tuple[
     new_tokens = tokens
     longest_len = 0
     for subtokens in new_tokens:
-        if not lexer.label_directive_regex.match(tokens_to_line(subtokens), re.MULTILINE):
+        ldr_match = lexer.label_directive_regex.match(tokens_to_line(subtokens))
+        if not ldr_match:
             continue
         longest_len = max(longest_len, sum(len(token_value) for _, token_value in subtokens[:-1]))
 
@@ -88,9 +89,19 @@ def align_data_comments(tokens: List[List[Tuple[str, str]]]) -> List[List[Tuple[
         multiplier += 1
 
     for i, subtokens in enumerate(tokens):
-        if not lexer.label_directive_regex.match(tokens_to_line(subtokens), re.MULTILINE):
+        if not lexer.label_directive_regex.match(tokens_to_line(subtokens)):
             continue
-        new_tokens[i].insert(len(subtokens) - 1, ('WHITESPACE', ' ' * (tab_len * multiplier - sum(len(token_value) for _, token_value in subtokens[:-1]))))
+        if (len(new_tokens[i]) > 8 or len(new_tokens[i]) < 13):
+          print
+          #new_tokens[i].pop(2)
+          #new_tokens[i].insert(2, ('WHITESPACE', ' '));
+          #new_tokens[i].insert(12, ('aaa', 'bbb'));
+        if (len(new_tokens[i]) == 13):
+          #new_tokens[i].pop(11)
+          #new_tokens[i].insert(12, ('ccc', 'ddd'));
+          new_tokens[i].insert(11, ('WHITESPACE', ' ' * (tab_len * multiplier - sum(len(token_value) for _, token_value in subtokens[:-1]))))
+        print (f"newtokens - {len(new_tokens[i])} - {new_tokens[i]}")
+        
     return new_tokens
 
 def align_inline_comments(tokens: List[List[Tuple[str, str]]]) -> List[List[Tuple[str, str]]]:

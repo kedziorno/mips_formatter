@@ -67,7 +67,7 @@ token_regex = re.compile(token_regex_str, flags=re.IGNORECASE)
 
 re_str = r'^(?P<DIRECTIVE>'+token_specs['DIRECTIVE'][1]+'\s+(?P<STRING>'+token_specs['STRING'][1]+')\s*(?P<COMMENT>'+token_specs['COMMENT'][1]+'))$'
 print (re_str)
-label_directive_regex = re.compile(re_str)
+label_directive_regex = re.compile(re_str, flags=re.IGNORECASE)
 
 re_str = r'(?P<COMMENT>' + token_specs['COMMENT'][1] + r')'
 print (re_str)
